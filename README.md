@@ -1,4 +1,4 @@
 Watson
 ======
 
-Project for AI project
+Project for AI
