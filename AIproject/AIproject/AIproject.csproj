@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="AIMain.cs" />
     <Compile Include="CandidateAnswer.cs" />
+    <Compile Include="GeneticAlgorithm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reader.cs" />
   </ItemGroup>

@@ -35,7 +35,8 @@ namespace AIproject
                         String[] values = line.Split(',');
                         int qID = -1;
                         int aID = -1;
-                        List<int> dSet = new List<int>();
+                        Boolean correct = false;
+                        List<double> dSet = new List<double>();
                         for (int i = 0; i < values.Length;i++)
                         {
                             if (i == 0)
@@ -47,13 +48,24 @@ namespace AIproject
                             {
                                 aID = Convert.ToInt32(values[i]);
                             }
+                            else if(i == values.Length - 1)
+                            {
+                                if (values[i].CompareTo("true") == 0)
+                                {
+                                    correct = true;
+                                }
+                                else
+                                {
+                                    correct = false;
+                                }
+                            }
                             else
                             {
-                                dSet.Add(Convert.ToInt32(values[i]));
+                                dSet.Add(Convert.ToDouble(values[i]));
                             }
                         }
 
-                        CandidateAnswer temp = new CandidateAnswer(qID, aID, dSet);
+                        CandidateAnswer temp = new CandidateAnswer(qID, aID, dSet, correct);
                         this.candidates.Add(temp);
                     }
                 }
