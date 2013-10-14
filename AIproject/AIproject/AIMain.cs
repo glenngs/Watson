@@ -9,6 +9,19 @@ namespace AIproject
     {
         static void Main(string[] args)
         {
+
+
+            String filename = System.Console.ReadLine();
+
+            Reader read = new Reader(filename);
+
+            read.read();
+
+            System.Console.WriteLine(read.getCandidates()[0]);
+
+             
+
+
         }
     }
 }
