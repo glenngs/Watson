@@ -85,6 +85,9 @@ packages
 csx
 *.build.csdef
 
+# Ignore Resharper
+_ReSharper.AIproject/
+
 # Windows Store app package directory
 AppPackages/
 
