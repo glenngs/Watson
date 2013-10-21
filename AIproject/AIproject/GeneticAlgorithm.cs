@@ -2,53 +2,106 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
+using PriorityQueueDemo;
 
 namespace AIproject
 {
     class GeneticAlgorithm
     {
-        List<double> featureWeights;
+        List<List<double>> generation;
         List<CandidateAnswer> answers;
 
         public GeneticAlgorithm(List<CandidateAnswer> answers)
         {
             this.answers = answers;
             var sizeOfFeatureSet = answers[0].dataSet.Count;
-            for (int i = 0; i < sizeOfFeatureSet; i++) {
-                featureWeights.Add(1);
+            var r = new Random();
+            this.generation = new List<List<Double>>();
+            for (int j = 0; j < 10; j++) {
+                generation.Add(new List<double>());
+                for (int i = 0; i < sizeOfFeatureSet; i++) {
+                    this.generation[j].Add(r.NextDouble() *  r.Next(100));
+                }
             }
         }
 
         public GeneticAlgorithm(List<CandidateAnswer> answers, string fileName) 
         {
             // Get the feature set based on file
+            var lastLine = File.ReadLines(fileName).Last();
             this.answers = answers;
         }
+
+        // So, we have a bit of an error, but it shouldn't be too hard to fix
+        // mostly because of how nice and separated the bits of our algorithm are
+
+        // The way it is supposed to work is we pull the best candidates from the last generation
+        // to be the feature sets for the new generation
+        // At the start of the new generation, we do crossover between the best candidates from the previous
+        // Then we calculate the scores of the new crossedover ones and stuff
+        // We get the best ones from that
+        // Mutate them
+        // Have new candidates
 
         public void runGeneticAlgorithm()
         {
             SortList();
-            int generationNumber = 0;
-            while (generationNumber >= 0)
+            int generationNumber = 1;
+            while (generationNumber > 0)
             {
-                var bestScore = scoreMutation(featureWeights);
-                for (int i = 0; i < 10; i++)
+                List<List<Double>> crossedOver = crossover(this.generation);
+                
+                PriorityQueue<double, List<Double>> generationScores = new PriorityQueue<double,List<double>>();
+
+                foreach (List<Double> featureSet in crossedOver) //getting stuck in the crossOver
                 {
-                    var mutation = mutate(featureWeights);
-                    var mutationScore = scoreMutation(mutation);
-                    if (mutationScore > bestScore)
-                    {
-                        bestScore = mutationScore;
-                        featureWeights = mutation;
-                    }
+                    generationScores.Add(new KeyValuePair<double,List<double>>(1/scoreFeatureSet(featureSet), featureSet));
                 }
-                storeWeights(featureWeights);
-                Console.WriteLine("Generation " + generationNumber + " recieved a score of " + bestScore);
+
+                this.generation.Clear();
+                for (int i = 0; i < 5; i++) 
+                {
+                    generation.Add(generationScores.DequeueValue());
+                }
+
+                for (int i = 0; i < 5; i++)
+                {
+                    generation.Add(mutate(generationScores.DequeueValue()));
+                }
+
+                System.Console.WriteLine("Generation " + generationNumber + ":");
+                foreach (List<Double> featureSet in this.generation) 
+                {
+                    System.Console.WriteLine("Candidate received a score of " + scoreFeatureSet(featureSet) + ".");
+                }
+                System.Console.WriteLine("===========================================");
                 generationNumber++;
             }
         }
 
-        public double scoreMutation(List<Double> featureSet)
+        public List<List<double>> crossover(List<List<Double>> generationCandidates)
+        {
+            List<List<Double>> crossedOvers = new List<List<Double>>();
+            foreach (List<Double> featureSet in generationCandidates)
+            {
+                crossedOvers.Add(featureSet);
+                foreach (List<Double> featureSet2 in generationCandidates)
+                {
+                    if (featureSet != featureSet2)
+                    {
+                        List<Double> zeldaForDays = featureSet;
+                        Random r = new Random();
+                        int indexu = r.Next(featureSet.Count);
+                        zeldaForDays[indexu] = featureSet2[indexu];
+                        crossedOvers.Add(zeldaForDays);
+                    }
+                }
+            }
+            return crossedOvers;
+        }
+
+        public double scoreFeatureSet(List<Double> featureSet)
         {
             List<List<CandidateAnswer>> answersSortedByQuestion = sortByQuestion();
 
@@ -140,8 +193,7 @@ namespace AIproject
                 sassyBlackString = sassyBlackString + ",";
             }
             sassyBlackString = sassyBlackString + "done";
-
-
+            
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\glenngs\Desktop\AI repo\Watson\AIproject\AIproject\Results.txt", true))
             {
                 file.WriteLine(sassyBlackString);

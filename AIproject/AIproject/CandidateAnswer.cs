@@ -10,12 +10,12 @@ namespace AIproject
     {
 
         public int questionID;
-        public int answerID;
+        public Double answerID;
         public List<double> dataSet;
         public Boolean correct;
 
 
-        public CandidateAnswer(int qID, int aID, List<double> dSet)
+        public CandidateAnswer(int qID, Double aID, List<Double> dSet)
         {
             this.correct = false;
             this.questionID = qID;
@@ -24,7 +24,7 @@ namespace AIproject
 
         }
 
-        public CandidateAnswer(int qID, int aID, List<double> dSet, Boolean correct)
+        public CandidateAnswer(int qID, Double aID, List<Double> dSet, Boolean correct)
         {
             this.correct = correct;
             this.questionID = qID;

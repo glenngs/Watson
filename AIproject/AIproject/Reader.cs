@@ -26,29 +26,29 @@ namespace AIproject
             {
                 using (StreamReader read = new StreamReader(this.filename))
                 {
-                    while(true)
+                    String line = "";
+
+                    while((line =read.ReadLine()) != null)
                     {
-                        String line = read.ReadLine();
-                        if(line == null){
-                            break;
-                        }
+
                         String[] values = line.Split(',');
                         int qID = -1;
-                        int aID = -1;
+                        Double aID = -1.0;
                         Boolean correct = false;
-                        List<double> dSet = new List<double>();
+                        List<Double> dSet = new List<Double>();
+                        
                         for (int i = 0; i < values.Length;i++)
                         {
                             if (i == 0)
                             {
                                 qID = Convert.ToInt32(values[i]);
-
+                                
                             }
                             else if (i == 1)
                             {
-                                aID = Convert.ToInt32(values[i]);
+                                aID = Double.Parse(values[i]);
                             }
-                            else if(i == values.Length - 1)
+                            else if(i == (values.Length - 1))
                             {
                                 if (values[i].CompareTo("true") == 0)
                                 {
@@ -61,7 +61,7 @@ namespace AIproject
                             }
                             else
                             {
-                                dSet.Add(Convert.ToDouble(values[i]));
+                                dSet.Add(Double.Parse(values[i]));
                             }
                         }
 
