@@ -32,19 +32,19 @@ namespace AIproject
                     {
 
                         String[] values = line.Split(',');
-                        int qID = -1;
+                        Double qID = -1.0;
                         Double aID = -1.0;
                         Boolean correct = false;
                         List<Double> dSet = new List<Double>();
                         
                         for (int i = 0; i < values.Length;i++)
                         {
-                            if (i == 0)
+                            if (i == 1)
                             {
-                                qID = Convert.ToInt32(values[i]);
+                                qID = Double.Parse(values[i]);
                                 
                             }
-                            else if (i == 1)
+                            else if (i == 0)
                             {
                                 aID = Double.Parse(values[i]);
                             }

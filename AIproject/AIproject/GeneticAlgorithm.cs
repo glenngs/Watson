@@ -11,10 +11,12 @@ namespace AIproject
     {
         List<List<double>> generation;
         List<CandidateAnswer> answers;
+        List<List<CandidateAnswer>> answersSortedByQ;
 
         public GeneticAlgorithm(List<CandidateAnswer> answers)
         {
             this.answers = answers;
+            this.answersSortedByQ = sortByQuestion();
             var sizeOfFeatureSet = answers[0].dataSet.Count;
             var r = new Random();
             this.generation = new List<List<Double>>();
@@ -31,6 +33,7 @@ namespace AIproject
             // Get the feature set based on file
             var lastLine = File.ReadLines(fileName).Last();
             this.answers = answers;
+            this.answersSortedByQ = sortByQuestion();
         }
 
         // So, we have a bit of an error, but it shouldn't be too hard to fix
@@ -56,21 +59,47 @@ namespace AIproject
 
                 foreach (List<Double> featureSet in crossedOver) //getting stuck in the crossOver
                 {
-                    generationScores.Add(new KeyValuePair<double,List<double>>(1/scoreFeatureSet(featureSet), featureSet));
+                    generationScores.Add(new KeyValuePair<double,List<double>>(-scoreFeatureSet(featureSet), featureSet));
                 }
 
                 this.generation.Clear();
                 for (int i = 0; i < 5; i++) 
                 {
-                    generation.Add(generationScores.DequeueValue());
+                    var woopa = generationScores.Dequeue();
+                    while (generation.Contains(woopa.Value))
+                    {
+                        woopa = generationScores.Dequeue();
+                    }
+                    this.generation.Add(woopa.Value);
                 }
 
                 for (int i = 0; i < 5; i++)
                 {
-                    generation.Add(mutate(generationScores.DequeueValue()));
+                    var woopa = generationScores.Dequeue();
+                    var mutation = mutate(woopa.Value);
+                    while (generation.Contains(mutation))
+                    {
+                        mutation = mutate(woopa.Value);
+                    }
+                    generation.Add(mutation);
                 }
 
+
+
                 System.Console.WriteLine("Generation " + generationNumber + ":");
+                for (int i = 0; i < 10; i++ )
+                {
+                    for (int j = 0; j < 10; j++)
+                    {
+                        if (i != j)
+                        {
+                            if (this.generation[i] == this.generation[j])
+                            {
+                                System.Console.WriteLine("There are duplicates.");
+                            }
+                        }
+                    }
+                }
                 foreach (List<Double> featureSet in this.generation) 
                 {
                     System.Console.WriteLine("Candidate received a score of " + scoreFeatureSet(featureSet) + ".");
@@ -90,10 +119,17 @@ namespace AIproject
                 {
                     if (featureSet != featureSet2)
                     {
-                        List<Double> zeldaForDays = featureSet;
+                        List<Double> zeldaForDays = new List<double>();
+                        foreach (Double ele in featureSet) 
+                        {
+                            zeldaForDays.Add(ele);
+                        }
                         Random r = new Random();
-                        int indexu = r.Next(featureSet.Count);
-                        zeldaForDays[indexu] = featureSet2[indexu];
+                        for (int i = 0; i < 15; i++)
+                        {
+                            int indexu = r.Next(featureSet.Count);
+                            zeldaForDays[indexu] = featureSet2[indexu];
+                        }
                         crossedOvers.Add(zeldaForDays);
                     }
                 }
@@ -103,7 +139,7 @@ namespace AIproject
 
         public double scoreFeatureSet(List<Double> featureSet)
         {
-            List<List<CandidateAnswer>> answersSortedByQuestion = sortByQuestion();
+            List<List<CandidateAnswer>> answersSortedByQuestion = this.answersSortedByQ;
 
             double tot = 0;
             foreach (List<CandidateAnswer> ansList in answersSortedByQuestion)
@@ -146,7 +182,7 @@ namespace AIproject
             List<List<CandidateAnswer>> toRet = new List<List<CandidateAnswer>>();
             toRet.Add(new List<CandidateAnswer>());
             int count = 0;
-            int prev = this.answers[0].questionID;
+            Double prev = this.answers[0].questionID;
             foreach (CandidateAnswer ca in this.answers)
             {
                 if (ca.questionID == prev)
@@ -155,7 +191,8 @@ namespace AIproject
                 }
                 else
                 {
-                    count++;
+                    count+=1;
+                    prev = ca.questionID;
                     toRet.Add(new List<CandidateAnswer>());
                     toRet[count].Add(ca);
                 }
@@ -179,8 +216,17 @@ namespace AIproject
             Random r = new Random();
             double randomWeight = r.NextDouble() * r.Next(1000);
             int randomIndex = r.Next(featureSet.Count);
-            var mutation = featureSet;
-            mutation[randomIndex] = randomWeight;
+            var mutation = new List<Double>();
+            foreach (double ele in featureSet)
+            {
+                mutation.Add(ele);
+            }
+            for (int i = 0; i < 20; i++)
+            {
+                mutation[randomIndex] = randomWeight;
+                randomWeight = r.NextDouble() * r.Next(1000);
+                randomIndex = r.Next(featureSet.Count);
+            }
             return mutation;
         }
 
